@@ -463,6 +463,10 @@ delete the corresponding lines referring to the file.
 
 Don't forget to update the version in `addons/main/script_version.hpp` before each release!
 
+----
+
+For reference only, the above example is available as a [zipped file](my-arms-dealer-extension.zip).
+
 [a3u-hals_rf_sample_include]: https://github.com/Antistasi-Ultimate-Community/A3-Antistasi-Ultimate/blob/stable/A3A/addons/hals/Addons/store/config/rf.hpp
 [arma-3-tools]: https://store.steampowered.com/app/233800/Arma_3_Tools/
 [cba]: https://steamcommunity.com/sharedfiles/filedetails/?id=450814997
