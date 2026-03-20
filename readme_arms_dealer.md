@@ -16,8 +16,25 @@ and _may_ result in a `.pbo` file. Also called _components_ in CBA architecture.
 
 - Arma 3 - The game. Duh.
 - [Arma 3 Tools][arma-3-tools] - For publishing your extender.
+- [Git][git-for-windows] - Source code versioning
 - [HEMTT][hemtt] - Quite opinionated build system - to build your extender.
 - [CBA][cba] - Community Based Addons for Arma 3
+
+Also, a decent editor:
+- VSCode - a requirement mentioned [here](readme.md#visual-studio-code-method) already.
+- [Notepad++][npp-link] - if you must.
+
+### Environment
+
+This article assumes you're working in VSCode; if you're using any other editor,
+you're on your own. Figure out the deviating commands yourself, please.
+
+When mentioning `git commit`, you might want to use VSCode's source control
+panel rather than the command line.
+
+When mentioning `hemtt check`, this assumes you have the project loaded in
+VSCode and a terminal panel open ("F1" >> "Create new terminal (with profile)" >>
+"my-arms-dealer-extension" >> "PowerShell").
 
 ## Setup
 
@@ -28,7 +45,7 @@ store.
 
 Follow project initialization instructions from the
 [HEMTT book][hemtt-command-new]. For demonstration purposes, we'll create a
-project called `my-arms-dealer-extension`.
+project called `my-arms-dealer-extension` (**MADE**).
 
 ![HEMTT new command](images/arms_dealer_hemtt_new.png)
 
@@ -36,7 +53,7 @@ That should leave you with a project structure
 like this:
 
 ```
-<my-arms-dealer-project> /
+<my-arms-dealer-extension> /
    | .git
    | .hemtt
    +---- project.toml
@@ -332,9 +349,96 @@ put them in a dedicated include file.
     #include "CfgHalsStore.hpp"
     ```
 
+3. Check validity with `hemtt check`.
+
+4. Commit your changes.
+
+## Building
+
+In your terminal window, simply run `hemtt build`.
+
+In a jiffy, this should have created the directory
+`<my-arms-dealer-extension>\.hemttout\build` which is your "raw" mod ready for
+testing. Referred to as the **build directory** in this article.
+
+## Testing
+
+### One-time setup
+
+After a successful build, you need to add the **build directory** as a local mod
+in the Arma launcher.
+
+![Arma launcher local mod](images/arms_dealer_arma_launcher.png)
+
+In the upcoming dialog, navigate to your **build directory** and hit "Select folder".
+
+The mod should show up as an available mod in the list now.
+
+### Run the test
+
+Activate mods "CBA_A3", "Antistasi Ultimate - Mod" and your mod.
+
+For this demonstration, under DLC, also activate Reaction Forces DLC.
+
+Run.
+
+## Subsequent tests
+
+After you've added more items to the store, a `hemtt build` and launch via the
+Arma launcher is sufficient.
+
+## Releasing
+
+This assumes your mod has a fancy logo handy in a file `a3uemade.paa`. If not,
+delete the corresponding lines referring to the file.
+
+1. Create `mod.cpp`
+
+    Adjust contents as needed for your extension.
+
+    ```
+    name = "[A3UE] My Arms Dealer Extension";
+    picture = "a3uemade.paa";
+    actionName = "Website";
+    action = "https://github.com";
+    description = "My Arms Dealer Extension v1.0.0";
+    logo = "a3uemade.paa";
+    logoOver = "a3uemade.paa";
+    tooltip = "My Arms Dealer Extension";
+    tooltipOwned = "My Arms Dealer Extension Owned";
+    overview = "It's an arms dealer extension for Antistasi Ultimate.";
+    author = "goreSplatter";
+    overviewPicture = "a3uemade.paa";
+    overviewText = "My Arms Dealer Extension overviewText";
+    overviewFootnote = "<br /><br /><t color='#999999'>This content is under Arma Public License Share Alike (APL-SA) License.<br />Press <t /><t color='#19d3ff'>Left Shift + P<t /><t color='#999999'> to open the store page for more information.<t />";
+    ```
+
+2. Make this file and others part of the release; edit `.hemtt/project.toml`:
+    ```toml
+    [files]
+    include = [
+        "a3uemade.paa",
+        "LICENSE",
+        "README.md",
+        "mod.cpp"
+    ]
+    ```
+
+3. Commit changes
+
+4. Run HEMTT release
+
+    In the terminal, run `hemtt release`.
+
+    A good release command would have created `releases/a3uemade-latest.zip`.
+
+5. Publish using Arma Tools
+
 [a3u-hals_rf_sample_include]: https://github.com/Antistasi-Ultimate-Community/A3-Antistasi-Ultimate/blob/stable/A3A/addons/hals/Addons/store/config/rf.hpp
 [arma-3-tools]: https://store.steampowered.com/app/233800/Arma_3_Tools/
 [cba]: https://steamcommunity.com/sharedfiles/filedetails/?id=450814997
 [cba-common_include]: https://github.com/CBATeam/CBA_A3/blob/release/addons/main/script_macros_common.hpp
+[git-for-windows]: https://git-scm.com/install/windows
 [hemtt]: https://hemtt.dev/
 [hemtt-command-new]: https://hemtt.dev/commands/new.html
+[npp-link]: https://notepad-plus-plus.org/
