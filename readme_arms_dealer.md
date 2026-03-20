@@ -9,7 +9,7 @@ replicate the whole `hals_store` addon, or worse, the whole mod.
 ## Terminology
 
 - **Addon** - a functionally segregated part of a mod; always has a `config.cpp`
-and _may_ result in a `.pbo` file.
+and _may_ result in a `.pbo` file. Also called _components_ in CBA architecture.
 - **Mod** - a collection of _addons_ that can be uploaded to the workshop.
 
 ## Requirements
@@ -109,10 +109,12 @@ Let's set up our main addon.
 
     // All your global mod-specific macros go after this line
     /* ... */
+    #ifndef QPREFIX
+        #define QPREFIX QUOTE(PREFIX)
+    #endif // QPREFIX
     ```
 
 6. Create `addons/main/config.cpp` with this content:
-
     ```sqf
     #include "script_component.hpp"
 
@@ -139,7 +141,6 @@ Let's set up our main addon.
    ```
 
 7. Finally, create `addons/main/stringtable.xml`:
-
     ```xml
     <?xml version="1.0" encoding="utf-8"?>
     <Project name="A3UEMADE">
@@ -163,7 +164,177 @@ Let's set up our main addon.
 > `hemtt check` is your friend. Run this command often; especially after bigger
 > changes. A good project is an error- and warning-free project! Run it now.
 
+8. HEMTT should have complained about the `#include` to CBA's common scripts
+file. It needs to be added as an external include for HEMTT. Copy
+[this file][cba-common_include] to 
+`include\x\cba\addons\main\script_macros_common.hpp`.
+
+8. Commit your changes.
+
+## The juice
+
+Now that we have a mod-skeleton in place which doesn't do a lot by itself, it's
+time for the _actual_ project.
+
+### Store addon
+
+Add a new addon to the mod project structure. Call it `store` and follow these steps:
+
+1. Create `addons/store/$PBOPREFIX$`
+    ```
+    z\auemade\addons\store
+    ```
+
+2. Create `addons/store/script_component.hpp`
+    ```sqf
+    #define COMPONENT store
+    #include "\z\a3uemade\addons\main\script_mod.hpp"
+    #include "\z\a3uemade\addons\main\script_macros.hpp"
+
+    // Macros _local_ to the addon (i.e. not used outside of it) go here
+    #define ITEM(CLASSNAME, PRICE, STOCK)\
+        class CLASSNAME {\
+            price = PRICE;\
+            stock = STOCK;\
+        }
+
+    #define MAGAZINE_STOCK 200
+    #define LAUNCHER_STOCK 15
+    #define PISTOL_STOCK 50
+    #define RIFLE_STOCK 20
+    #define MZ_STOCK 50
+    #define NN_STOCK 50
+    #define PN_STOCK 25
+    #define MISC_STOCK 50
+    ```
+
+3. Create `addons/store/config.cpp`
+    ```sqf
+    #include "script_component.hpp"
+
+    class CfgPatches {
+        class ADDON {
+            name = CSTRING(component);
+            units[] = {};
+            weapons[] = {};
+            requiredVersion = REQUIRED_VERSION;
+            requiredAddons[] = {
+                // Require our main addon
+                QUOTE(MAIN_ADDON),
+                // We're updating A3U's store, so the HALS store addon is required, too
+                "A3A_hals"
+            };
+            author = CSTRING(Author);
+            authors[] = {};
+            url = CSTRING(URL);
+            VERSION_CONFIG;
+        };
+    };
+    ```
+
+4. Test changes, run `hemtt check`.
+
+5. Commit your changes.
+
+### Store configuration
+
+A3U's hals store items are configured as class-based config entries. Let's all
+put them in a dedicated include file.
+
+1. Create `addons/store/CfgHalsStore.hpp`
+
+    This will instruct Antistasi Ultimate to look for our store if all the
+    required mods/addons are loaded.
+
+    ```sqf
+    // Antistasi Ultimate configuration
+    class A3A {
+        class traderAddons {
+            class addons_base;
+
+            // Our store class
+            class DOUBLES(addons,PREFIX): addons_base {
+                addons[] = {
+                    // Add a requirement to our mod, not just RF
+                    QUOTE(MAIN_ADDON),
+                    // We require RF_Weapons addon loaded; don't show store if not loaded.
+                    "RF_Weapons"
+                };
+                // Reference to traderWeapons sub-class below
+                weapons = QUOTE(DOUBLES(weapons,PREFIX));
+            };
+
+            class traderWeapons {
+                class weapons_base;
+                class DOUBLES(weapons,PREFIX): weapons_base {
+                    // Defines the available store referenced below
+                    prefix = DOUBLES(PREFIX,store);
+                };
+            };
+        };
+    };
+
+    // HALs store addon configuration
+    class CfgHALsAddons {
+        class CfgHALsStore {
+            class stores {
+                class DOUBLES(PREFIX,store) {
+                    displayName = "$STR_ARMS_DEALER_STORE";
+                    categories[] = {
+                        // Miscellaneous category defined below
+                        QUOTE(TRIPLES(PREFIX,store,misc)),
+                        // Weapons category defined below
+                        QUOTE(TRIPLES(PREFIX,store,weapons))
+                    };
+                };
+            };
+
+            class categories {
+                class TRIPLES(PREFIX,store,misc) {
+                    // Result: "A3UEMADE - Miscellaneous"
+                    displayName = __EVAL(formatText ["%1 %2", QPREFIX, localize "STR_A3AU_misc"]);
+                    // Arma 3 backpack icon
+                    picture = "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\backpack_ca.paa";
+
+                    /*
+                        Add store items here.
+
+                        We're using the ITEM() macro defined earlier in `script_component.hpp`
+
+                        Syntax is:
+                            ITEM(className,price,stock);
+                    */
+
+                    // Drone40 HE - base price: 5000, stock: three units
+                    ITEM(1Rnd_RC40_HE_shell_RF,5000,3);
+                    // Drone40 Blue Smoke - base price: 2500, stock: ten units
+                    ITEM(1Rnd_RC40_SmokeBlue_shell_RF,2500,10);
+                };
+
+                class TRIPLES(PREFIX,store,weapons) {
+                    // Result: "A3UEMADE - Rifles"
+                    displayName = __EVAL(formatText ["%1 %2", QPREFIX, localize "STR_A3AU_rifles"]);
+                    // Arma 3 long rifle icon
+                    picture = "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\primaryWeapon_ca.paa";
+
+                    // Veles-S 12.7mm - base price: 3500, stock: A3U rifle default stock quantity (20 units)
+                    ITEM(arifle_ash12_LR_blk_RF,3500,RIFLE_STOCK);
+                };
+            };
+        };
+    };
+    ```
+
+    For additional categories (especially their category locale strings & pictures), refer to [this file][a3u-hals_rf_sample_include].
+
+2. Include our new config in this addon's `config.cpp`. Add this line to it:
+    ```sqf
+    #include "CfgHalsStore.hpp"
+    ```
+
+[a3u-hals_rf_sample_include]: https://github.com/Antistasi-Ultimate-Community/A3-Antistasi-Ultimate/blob/stable/A3A/addons/hals/Addons/store/config/rf.hpp
 [arma-3-tools]: https://store.steampowered.com/app/233800/Arma_3_Tools/
 [cba]: https://steamcommunity.com/sharedfiles/filedetails/?id=450814997
+[cba-common_include]: https://github.com/CBATeam/CBA_A3/blob/release/addons/main/script_macros_common.hpp
 [hemtt]: https://hemtt.dev/
 [hemtt-command-new]: https://hemtt.dev/commands/new.html
