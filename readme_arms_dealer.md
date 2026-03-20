@@ -92,6 +92,7 @@ Let's set up our main addon.
     #define COMPONENT main
     #include "script_mod.hpp"
     #include "script_macros.hpp"
+
     ```
 
 3. Create `addons/main/script_mod.hpp`:
@@ -107,6 +108,7 @@ Let's set up our main addon.
 
     // MINIMAL required Arma version for the Mod. Components can specify others..
     #define REQUIRED_VERSION 2.20
+
     ```
 
 4. Create `addons/main/script_version.hpp`:
@@ -115,6 +117,7 @@ Let's set up our main addon.
     #define MINOR 0
     #define PATCHLVL 0
     #define BUILD 000000
+
     ```
 
 5. Create `addons/main/script_macros.hpp`:
@@ -129,6 +132,7 @@ Let's set up our main addon.
     #ifndef QPREFIX
         #define QPREFIX QUOTE(PREFIX)
     #endif // QPREFIX
+
     ```
 
 6. Create `addons/main/config.cpp` with this content:
@@ -155,6 +159,7 @@ Let's set up our main addon.
             VERSION_CONFIG;
         };
     };
+
    ```
 
 7. Finally, create `addons/main/stringtable.xml`:
@@ -171,10 +176,11 @@ Let's set up our main addon.
                 <German>[A3UE] MADE - Hauptkomponente</German>
             </Key>
             <Key ID="STR_A3UEMADE_Main_URL">
-                <Original>https://github.com/</English>
+                <Original>https://github.com/</Original>
             </Key>
         </Package>
     </Project>
+
     ```
 
 > [!TIP]
@@ -186,7 +192,9 @@ file. It needs to be added as an external include for HEMTT. Copy
 [this file][cba-common_include] to 
 `include\x\cba\addons\main\script_macros_common.hpp`.
 
-8. Commit your changes.
+9. Rerun `hemtt check`.
+
+10. Commit your changes.
 
 ## The juice
 
@@ -223,6 +231,7 @@ Add a new addon to the mod project structure. Call it `store` and follow these s
     #define NN_STOCK 50
     #define PN_STOCK 25
     #define MISC_STOCK 50
+
     ```
 
 3. Create `addons/store/config.cpp`
@@ -241,17 +250,30 @@ Add a new addon to the mod project structure. Call it `store` and follow these s
                 // We're updating A3U's store, so the HALS store addon is required, too
                 "A3A_hals"
             };
-            author = CSTRING(Author);
+            author = ECSTRING(main,Author);
             authors[] = {};
-            url = CSTRING(URL);
+            url = ECSTRING(main,URL);
             VERSION_CONFIG;
         };
     };
+
     ```
 
-4. Test changes, run `hemtt check`.
+4. Update `stringtable.xml` in `addons/main` or create one for this addon specifically.
 
-5. Commit your changes.
+    ```xml
+    <Package name="Store">
+        <Key ID="STR_A3UEMADE_Store_Component">
+            <Original>[A3UE] MADE - Store component</Original>
+            <German>[A3UE] MADE - Storekomponente</German>
+        </Key>
+    </Package>
+
+    ```
+
+5. Test changes, run `hemtt check`.
+
+6. Commit your changes.
 
 ### Store configuration
 
@@ -340,6 +362,7 @@ put them in a dedicated include file.
             };
         };
     };
+
     ```
 
     For additional categories (especially their category locale strings & pictures), refer to [this file][a3u-hals_rf_sample_include].
@@ -411,6 +434,7 @@ delete the corresponding lines referring to the file.
     overviewPicture = "a3uemade.paa";
     overviewText = "My Arms Dealer Extension overviewText";
     overviewFootnote = "<br /><br /><t color='#999999'>This content is under Arma Public License Share Alike (APL-SA) License.<br />Press <t /><t color='#19d3ff'>Left Shift + P<t /><t color='#999999'> to open the store page for more information.<t />";
+
     ```
 
 2. Make this file and others part of the release; edit `.hemtt/project.toml`:
@@ -422,6 +446,7 @@ delete the corresponding lines referring to the file.
         "README.md",
         "mod.cpp"
     ]
+
     ```
 
 3. Commit changes
@@ -433,6 +458,10 @@ delete the corresponding lines referring to the file.
     A good release command would have created `releases/a3uemade-latest.zip`.
 
 5. Publish using Arma Tools
+
+### Subsequent releases
+
+Don't forget to update the version in `addons/main/script_version.hpp` before each release!
 
 [a3u-hals_rf_sample_include]: https://github.com/Antistasi-Ultimate-Community/A3-Antistasi-Ultimate/blob/stable/A3A/addons/hals/Addons/store/config/rf.hpp
 [arma-3-tools]: https://store.steampowered.com/app/233800/Arma_3_Tools/
