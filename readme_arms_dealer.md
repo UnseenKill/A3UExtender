@@ -331,7 +331,7 @@ put them in a dedicated include file.
 
             class categories {
                 class TRIPLES(PREFIX,store,misc) {
-                    // Result: "A3UEMADE - Miscellaneous"
+                    // Result: "a3uemade Miscellaneous"
                     displayName = __EVAL(formatText ["%1 %2", QPREFIX, localize "STR_A3AU_misc"]);
                     // Arma 3 backpack icon
                     picture = "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\backpack_ca.paa";
@@ -352,7 +352,7 @@ put them in a dedicated include file.
                 };
 
                 class TRIPLES(PREFIX,store,weapons) {
-                    // Result: "A3UEMADE - Rifles"
+                    // Result: "a3uemade Rifles"
                     displayName = __EVAL(formatText ["%1 %2", QPREFIX, localize "STR_A3AU_rifles"]);
                     // Arma 3 long rifle icon
                     picture = "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\primaryWeapon_ca.paa";
@@ -396,7 +396,8 @@ in the Arma launcher.
 
 In the upcoming dialog, navigate to your **build directory** and hit "Select folder".
 
-The mod should show up as an available mod in the list now.
+The mod should show up as an available mod in the list now. Probably just called
+"build", but we'll fix that later with a `mod.cpp` file.
 
 ### Run the test
 
