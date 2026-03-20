@@ -287,7 +287,7 @@ put them in a dedicated include file.
 
     ```sqf
     // Antistasi Ultimate configuration
-    class A3A {
+    class A3U {
         class traderAddons {
             class addons_base;
 
@@ -305,6 +305,7 @@ put them in a dedicated include file.
 
             class traderWeapons {
                 class weapons_base;
+
                 class DOUBLES(weapons,PREFIX): weapons_base {
                     // Defines the available store referenced below
                     prefix = QUOTE(DOUBLES(PREFIX,store));
