@@ -307,7 +307,7 @@ put them in a dedicated include file.
                 class weapons_base;
                 class DOUBLES(weapons,PREFIX): weapons_base {
                     // Defines the available store referenced below
-                    prefix = DOUBLES(PREFIX,store);
+                    prefix = QUOTE(DOUBLES(PREFIX,store));
                 };
             };
         };
