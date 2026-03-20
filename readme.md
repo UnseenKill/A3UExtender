@@ -121,7 +121,8 @@ This is a fork of [A3AExtender](https://github.com/official-antistasi-community/
   To do so, simply add a function to the `A3A` and/or `A3U` and/or `A3UE` class of `CfgFunctions.hpp` under the addon functions (you can also replicate the config.cpp to allow this in any other addon).
 
 ## Arms Dealer
-- Navigate to `addons` and read the `README.md` file.
+
+- Information available [here][readme_arms_dealer].
 
 # Releasing your extension
 Now that you have added the content/functionality you wanted its time to release the extension.
@@ -144,3 +145,5 @@ When you want other Antistasi players to easily find your extension, give it a d
 ## Need more advice?
 
 Read the [Developer Advice](https://github.com/Westalgie/A3UExtender/wiki/Developer-Advice) page.
+
+[readme_arms_dealer]: readme_arms_dealer.md
